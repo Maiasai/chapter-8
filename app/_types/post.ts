@@ -1,3 +1,5 @@
+"use client"
+
 export type PostData = { 
     post : string;
     categories : string[];
