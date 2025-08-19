@@ -3,18 +3,7 @@
 import React from 'react';
 import { useEffect,useState } from 'react';
 import Link from "next/link";
-
-
-
-type PostData = { 
-  post : string;
-  categories : string[];
-  content : string;
-  createdAt : string ;
-  id : number;
-  thumbnailUrl : string;
-  title : string;
-};
+import { PostData } from "./_types/post";
 
 
 type ApiResponse = {

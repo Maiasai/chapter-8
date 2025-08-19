@@ -1,10 +1,7 @@
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./app/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
+/** @type {import('postcss').Config} */
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
   },
-  plugins: [],
-}
+};
