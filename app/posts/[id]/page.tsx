@@ -4,6 +4,7 @@ import React from 'react';
 import {useEffect,useState } from 'react';
 import Image from "next/image";
 import { PostData } from "../../_types/post";
+import { MicroCmsPost } from "../../_types/post";
 
 
 
@@ -30,35 +31,32 @@ const ArticlePage= ({params}:Props) => {
 
 
 
+  const [post, setPost] = useState< MicroCmsPost | null>(null)
+
   useEffect(() => {
-    const fetcher = async () : Promise<void> => {
-      try {
-        const resp = await fetch(
-        `https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/posts/${id}`
-        );
-        const data : ApiResponse = await resp.json();
-        console.log(data);
+    const fetcher = async () : Promise < void > => {
+      setIsLoading(true)
+      const resp = await fetch(
+        `https://qh8l0fxjef.microcms.io/api/v1/posts/${id}`,// microCMSのエンドポイント
+        {
+          headers: {
+            'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROCMS_API_KEY as string, // APIキーをセット
+          },
+        },
+      )
+      const data: MicroCmsPost = await resp.json()
+      console.log(data);
 
-        console.log('API Response:', data);
-        setDetail(data.post);    // 状態を更新しているだけ
+      setPost(data) // dataをそのままセット
+      setIsLoading(false)
+    }
 
-      } catch (e) {
-        if(e instanceof Error){
-        setError(e.message);
-        }
-
-      } finally {
-        setIsLoading(false);
-
-      }
-      };
-          
-      fetcher();
-    },[id]);
+    fetcher()
+  }, [id])
 
   if (isLoading) return <p>読み込み中...</p>;
   if (error) return <p>エラーが発生しました: {error}</p>;
-  if (!detail) return <p>データが見つかりませんでした</p>;
+  if (!post) return <p>データが見つかりませんでした</p>;
 
           
 
@@ -68,32 +66,35 @@ const ArticlePage= ({params}:Props) => {
     
     <div className='w-full max-w-3xl mx-auto '>
 
+    {post.thumbnail && (
       <Image
-        src="/800x400.png"   // public フォルダ内の画像パス
-        alt="記事サムネイル"
-        width={768}          // 表示幅
-        height={400}         // 表示高さ
+        src={post.thumbnail.url}
+        alt={post.title}
+        width={post.thumbnail.width}
+        height={post.thumbnail.height}
+        priority
       />
+    )}
 
     </div>
 
     <div className='w-full max-w-3xl mx-auto p-4 m-0'>
     <div className='flex justify-between'>
-      <p className='text-gray-400 text-[12.8px] list-none'>{new Date(detail.createdAt).toLocaleDateString('ja-JP')}</p>
+      <p className='text-gray-400 text-[12.8px] list-none'>{new Date(post.createdAt).toLocaleDateString('ja-JP')}</p>
           
 
       <ul className='flex'>
-        {detail.categories.map((category,index)=> (
+        {post.categories.map((category,index)=> (
           <li key={index} 
-          className='text-blue-600 text-[12.8px] mr-2 py-1  px-2 border border-blue-500 rounded list-none'>{category}</li>
+          className='text-blue-600 text-[12.8px] mr-2 py-1  px-2 border border-blue-500 rounded list-none'>{category.name}</li>
         ))}
       </ul>
 
         
       </div>
-        <p className='text-black text-2xl mt-2 mb-4'>{detail.title}</p>
+        <p className='text-black text-2xl mt-2 mb-4'>{post.title}</p>
         <p className='text-black '
-          dangerouslySetInnerHTML={{ __html:detail.content }}/>
+          dangerouslySetInnerHTML={{ __html:post.content }}/>
       </div>
 
     </div>
