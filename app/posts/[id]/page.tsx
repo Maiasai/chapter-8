@@ -35,21 +35,28 @@ const ArticlePage= ({params}:Props) => {
 
   useEffect(() => {
     const fetcher = async () : Promise < void > => {
-      setIsLoading(true)
-      const resp = await fetch(
-        `https://qh8l0fxjef.microcms.io/api/v1/posts/${id}`,// microCMSのエンドポイント
-        {
-          headers: {
-            'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROCMS_API_KEY as string, // APIキーをセット
+      try {  
+        setIsLoading(true)
+        const resp = await fetch(
+          `https://qh8l0fxjef.microcms.io/api/v1/posts/${id}`,// microCMSのエンドポイント
+          {
+            headers: {
+              'X-MICROCMS-API-KEY': process.env.NEXT_PUBLIC_MICROCMS_API_KEY as string, // APIキーをセット
+            },
           },
-        },
-      )
-      const data: MicroCmsPost = await resp.json()
-      console.log(data);
+        )
+        const data: MicroCmsPost = await resp.json()
+        setPost(data) // dataをそのままセット
+        console.log(data);
 
-      setPost(data) // dataをそのままセット
-      setIsLoading(false)
-    }
+
+      } catch (e) { 
+        setError(e.message);
+
+      } finally {  
+        setIsLoading(false)
+      }
+    };
 
     fetcher()
   }, [id])
